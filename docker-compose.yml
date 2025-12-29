@@ -1,0 +1,57 @@
+services:
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    volumes:
+      - ./backend:/app
+      - temp_data:/temp
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+    ports:
+      - "4000:4000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    container_name: worker
+    depends_on:
+      - redis
+      - cpp-runner
+      - python-runner
+      - js-runner
+    restart: always
+    environment:
+      - REDIS_HOST=redis
+
+  cpp-runner:
+    build:
+      context: ./runner
+      dockerfile: cpp-runner.Dockerfile
+    container_name: cpp-runner
+
+  python-runner:
+    build:
+      context: ./runner
+      dockerfile: python-runner.Dockerfile
+    container_name: python-runner
+
+  js-runner:
+    build:
+      context: ./runner
+      dockerfile: js-runner.Dockerfile
+    container_name: js-runner
+
+volumes:
+  temp_data:

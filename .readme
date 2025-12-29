@@ -1,0 +1,4 @@
+to start frontend: " npm run dev "
+
+to start your server(backend) :-
+go to root directory and then use: " docker compose up "
